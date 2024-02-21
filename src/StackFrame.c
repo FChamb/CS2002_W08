@@ -21,15 +21,26 @@
  */
 
 unsigned long getBasePointer() {
-    return 0;
+    long rbp;
+    asm("movq %%rbp, %0;" : "=r"(rbp));
+    return rbp;
 }
 
 unsigned long getReturnAddress() {
-    return 0;
+    long rax;
+    asm("movq %%rax, %0;" : "=r"(rax));
+    return rax;
 }
 
 void printStackFrameData(unsigned long basePointer, unsigned long previousBasePointer) {
+    char hex[16];
+    sprintf(hex, "%x", basePointer);
+    printf("%x: %x -- ", previousBasePointer, basePointer);
+    for (int i = 16; i > 0; i -= 2) {
+        printf(&hex[i], &hex[i - 1])
+    }
 }
 
 void printStackFrames(int number) {
+
 }
