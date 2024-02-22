@@ -34,13 +34,16 @@ unsigned long getReturnAddress() {
 
 void printStackFrameData(unsigned long basePointer, unsigned long previousBasePointer) {
     char hex[16];
-    sprintf(hex, "%x", basePointer);
-    printf("%x: %x -- ", previousBasePointer, basePointer);
-    for (int i = 16; i > 0; i -= 2) {
-        printf(&hex[i], &hex[i - 1])
+    sprintf(hex, "%lx", basePointer);
+    printf("%lx:   %lx   --   ", previousBasePointer, basePointer);
+    for (int i = 15; i > 0; i -= 2) {
+        printf("%c%c   ", hex[i - 1], hex[i]);
     }
+    printf("\n");
 }
 
 void printStackFrames(int number) {
-
+    unsigned long current_rbp = getBasePointer();
+    long old_rbp = *((long*) current_rbp);
+    printStackFrameData(current_rbp,old_rbp);
 }
