@@ -28,7 +28,7 @@ unsigned long getBasePointer() {
 
 unsigned long getReturnAddress() {
     long rax;
-    asm("movq %%rax, %0;" : "=r"(rax));
+    asm("movq 8(%%rbp), %0;" : "=r"(rax));
     return rax;
 }
 
@@ -45,5 +45,7 @@ void printStackFrameData(unsigned long basePointer, unsigned long previousBasePo
 void printStackFrames(int number) {
     unsigned long current_rbp = getBasePointer();
     long old_rbp = *((long*) current_rbp);
-    printStackFrameData(current_rbp,old_rbp);
+    for (int i = 0; i < number; i++) {
+        printStackFrameData(current_rbp,old_rbp);
+    }
 }
