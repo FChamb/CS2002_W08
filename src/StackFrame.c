@@ -22,30 +22,50 @@
 
 unsigned long getBasePointer() {
     long rbp;
-    asm("movq %%rbp, %0;" : "=r"(rbp));
+    asm("movq 0(%%rbp), %0;" : "=r"(rbp));
     return rbp;
 }
 
 unsigned long getReturnAddress() {
-    long rax;
-    asm("movq 8(%%rbp), %0;" : "=r"(rax));
+    unsigned long base;
+    asm("movq 0(%%rbp), %0;" : "=r"(base));
+    unsigned long rax;
+    asm("movq 8(%1), %0;" : "=r"(rax) : "r"(base));
     return rax;
 }
 
 void printStackFrameData(unsigned long basePointer, unsigned long previousBasePointer) {
-    char hex[16];
-    sprintf(hex, "%lx", basePointer);
-    printf("%lx:   %s   --   ", previousBasePointer, hex);
-    for (int i = 15; i > 0; i -= 2) {
-        printf("%c%c   ", hex[i - 1], hex[i]);
+    unsigned long difference = previousBasePointer - basePointer;
+    for (unsigned long j = 0; j < difference; j += 8) {
+        char base[17];
+        char next[17];
+        sprintf(base, "%016lx", basePointer + j);
+        unsigned long memory;
+        asm("movq 0(%1), %0;" : "=r"(memory) : "r"(basePointer + j));
+        sprintf(next, "%016lx", memory);
+
+        printf("%s:   %s   --   ", base, next);
+        for (int i = 15; i > 0; i -= 2) {
+            printf("%c%c   ", base[i - 1], base[i]);
+        }
+        printf("\n");
+
+        asm("movq 0(%%rbp), %0;" : "=r"(previousBasePointer));
+
+        if (j == 0) {
+            printf("-------------\n");
+        }
     }
-    printf("\n");
 }
 
 void printStackFrames(int number) {
-    unsigned long current_rbp = getBasePointer();
-    long old_rbp = *((long*) current_rbp);
-    for (int i = 0; i < number; i++) {
-        printStackFrameData(current_rbp,old_rbp);
+    unsigned long basePointer = getBasePointer();
+    for (int i = 0; i <= number; i++) {
+        unsigned long previousBase;
+        asm("movq 0(%1), %0;" : "=r"(previousBase) : "r"(basePointer));
+        printStackFrameData(basePointer,previousBase);
+        basePointer = previousBase;
+        asm("movq 0(%%rbp), %0;" : "=r"(previousBase));
     }
+
 }
