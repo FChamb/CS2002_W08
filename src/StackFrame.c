@@ -35,7 +35,7 @@ unsigned long getReturnAddress() {
 void printStackFrameData(unsigned long basePointer, unsigned long previousBasePointer) {
     char hex[16];
     sprintf(hex, "%lx", basePointer);
-    printf("%lx:   %lx   --   ", previousBasePointer, basePointer);
+    printf("%lx:   %s   --   ", previousBasePointer, hex);
     for (int i = 15; i > 0; i -= 2) {
         printf("%c%c   ", hex[i - 1], hex[i]);
     }
